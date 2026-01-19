@@ -1,0 +1,18 @@
+# NextMind - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core dependencies (currently using only standard library)
+# No external dependencies required for MVP
+
+# Future dependencies (uncomment when needed):
+# openai>=1.0.0              # OpenAI API client
+# anthropic>=0.8.0           # Anthropic Claude API client
+# google-generativeai>=0.3.0 # Google Gemini API client
+# requests>=2.31.0           # HTTP library for API calls
+
+# Development dependencies
+# pytest>=7.4.0              # Testing framework
+# pytest-cov>=4.1.0          # Test coverage
+# black>=23.0.0              # Code formatter
+# mypy>=1.5.0                # Type checking
+# flake8>=6.1.0              # Linting

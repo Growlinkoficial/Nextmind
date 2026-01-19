@@ -3,10 +3,12 @@ Importador de conversas do Claude para o NextMind.
 Lê o arquivo conversations.json exportado do Claude e insere no banco de dados.
 """
 import json
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any
 from database import Database, Conversation, Message
+from logger import get_execution_logger
 
 
 def parse_claude_timestamp(timestamp_str: str) -> str:
@@ -43,10 +45,25 @@ def import_claude_conversations(
     Returns:
         Estatísticas da importação
     """
+    logger = get_execution_logger()
+    start_time = time.time()
+    
     print(f"Importando conversas do Claude de: {json_path}\n")
     
-    with open(json_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
+    try:
+        with open(json_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+    except Exception as e:
+        duration = time.time() - start_time
+        logger.log(
+            script_name="import_claude.py",
+            inputs={"json_path": json_path, "project_id": project_id},
+            outputs={},
+            duration_seconds=duration,
+            status="error",
+            error=f"Failed to read JSON file: {str(e)}"
+        )
+        raise
     
     conversation_model = Conversation(db)
     message_model = Message(db)
@@ -105,10 +122,21 @@ def import_claude_conversations(
             print(f"✗ Erro ao importar conversa: {e}")
             stats['conversations_skipped'] += 1
     
+    duration = time.time() - start_time
+    
     print(f"\n=== Importação Concluída ===")
     print(f"Conversas importadas: {stats['conversations_imported']}")
     print(f"Mensagens importadas: {stats['messages_imported']}")
     print(f"Conversas ignoradas: {stats['conversations_skipped']}")
+    
+    # Log execution
+    logger.log(
+        script_name="import_claude.py",
+        inputs={"json_path": json_path, "project_id": project_id},
+        outputs=stats,
+        duration_seconds=duration,
+        status="success"
+    )
     
     return stats
 
